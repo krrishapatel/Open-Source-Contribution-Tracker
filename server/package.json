@@ -1,0 +1,38 @@
+{
+  "name": "@contrib-tracker/server",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "lint": "eslint src",
+    "test": "vitest run --environment node",
+    "test:watch": "vitest --environment node"
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.0.2",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.1",
+    "morgan": "^1.10.0",
+    "node-cron": "^3.0.3",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "eslint": "^9.9.1",
+    "mongodb-memory-server": "^10.0.0",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.0.0",
+    "vitest": "^2.0.5"
+  }
+}
