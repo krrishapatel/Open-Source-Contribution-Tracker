@@ -15,6 +15,12 @@ function authPayload(user) {
   };
 }
 
+export function config(_req, res) {
+  res.json({
+    githubOAuthConfigured: Boolean(env.githubClientId && env.githubClientSecret)
+  });
+}
+
 export function githubLogin(req, res, next) {
   if (!env.githubClientId || !env.githubClientSecret) {
     res.status(503).json({ error: { message: "GitHub OAuth is not configured" } });

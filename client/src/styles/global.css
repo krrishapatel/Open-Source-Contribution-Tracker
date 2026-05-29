@@ -122,6 +122,27 @@ button {
   box-shadow: 0 24px 70px rgba(32, 42, 56, 0.22);
 }
 
+.setup-callout {
+  max-width: 620px;
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #e3c466;
+  border-radius: 8px;
+  color: #513c06;
+  background: #fff8db;
+}
+
+.setup-callout span {
+  color: #665016;
+  line-height: 1.5;
+}
+
+.setup-callout code {
+  font-weight: 800;
+}
+
 .terminal-preview div {
   display: flex;
   justify-content: space-between;

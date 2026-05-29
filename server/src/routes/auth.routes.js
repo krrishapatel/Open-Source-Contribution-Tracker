@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { githubCallback, githubLogin, logout, me, refresh } from "../controllers/auth.controller.js";
+import { config, githubCallback, githubLogin, logout, me, refresh } from "../controllers/auth.controller.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = Router();
 
+router.get("/config", config);
 router.get("/github", githubLogin);
 router.get("/github/callback", githubCallback);
 router.post("/refresh", refresh);
