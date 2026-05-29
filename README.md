@@ -1,93 +1,248 @@
 # Open Source Contribution Tracker
 
-A MERN learning project that helps developers track GitHub issues they want to contribute to, bookmark repositories, monitor pull requests, write notes, and measure contribution progress.
+A full-stack MERN application for tracking open source repositories, issues, pull requests, and contribution notes from GitHub.
 
-## What You Will Learn
+The app lets users sign in with GitHub, save repositories they want to contribute to, track issues, link pull requests, write research notes, and view contribution progress from one dashboard.
 
-- API design with Express route/controller/service layers
-- MongoDB modeling with relationships between users, repos, issues, pull requests, and notes
-- GitHub OAuth plus JWT-based app sessions
-- Calling external APIs with Octokit
-- Background syncing for GitHub issue and PR status changes
-- React app structure with protected routes and server-state fetching
-- Automated backend/frontend tests
-- GitHub Actions CI and deploy-ready project structure
+## Features
 
-## Architecture
+- GitHub OAuth login
+- JWT-based app sessions
+- Save GitHub repositories by `owner/name`
+- Track GitHub issues and contribution status
+- Track pull requests and whether they are merged
+- Add notes to tracked issues
+- Dashboard stats for repositories, issues, pull requests, and merged PRs
+- Background GitHub sync job
+- Demo dashboard mode for viewing the UI without OAuth credentials
+- Backend and frontend tests
+- GitHub Actions CI workflow
+- Example deployment workflows for frontend and backend
+
+## Tech Stack
+
+- React
+- Vite
+- Express
+- MongoDB
+- Mongoose
+- Passport GitHub OAuth
+- JWT
+- Octokit
+- Vitest
+- Supertest
+- Docker Compose
+- GitHub Actions
+
+## Project Structure
 
 ```txt
-client/ React + Vite dashboard
-server/ Express + MongoDB API
-.github/workflows/ CI pipeline
-docker-compose.yml Local MongoDB
+.
+├── client/                 # React frontend
+├── server/                 # Express API
+├── docs/                   # Supporting documentation
+├── .github/workflows/      # CI and deployment workflows
+├── docker-compose.yml      # Local MongoDB service
+├── package.json            # Root workspace scripts
+└── README.md
 ```
 
-The frontend never talks directly to MongoDB or GitHub. It calls your Express API. The API validates the request, checks the user session, reads/writes MongoDB, and calls GitHub when needed.
+## Getting Started
 
-## Local Setup
+### Prerequisites
 
-1. Install dependencies:
+- Node.js 22+
+- npm
+- Docker Desktop
+- GitHub OAuth app credentials
+
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-2. Copy environment files:
+### Environment Variables
+
+Create local env files:
 
 ```bash
 cp server/.env.example server/.env
 cp client/.env.example client/.env
 ```
 
-3. Start MongoDB:
+Update `server/.env`:
+
+```bash
+NODE_ENV=development
+PORT=5001
+CLIENT_URL=http://localhost:5173
+MONGO_URI=mongodb://localhost:27017/contrib_tracker
+JWT_ACCESS_SECRET=replace-with-a-random-secret
+JWT_REFRESH_SECRET=replace-with-a-random-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+```
+
+Update `client/.env` if needed:
+
+```bash
+VITE_API_URL=http://localhost:5001
+```
+
+### GitHub OAuth Setup
+
+Create a GitHub OAuth app from GitHub Developer Settings.
+
+Use these local development URLs:
+
+```txt
+Homepage URL:
+http://localhost:5173
+
+Authorization callback URL:
+http://localhost:5001/api/auth/github/callback
+```
+
+Copy the client ID and client secret into `server/.env`.
+
+## Running Locally
+
+Start MongoDB:
 
 ```bash
 docker compose up -d
 ```
 
-4. Run the app:
+Run the frontend and backend:
 
 ```bash
 npm run dev
 ```
 
-The API runs on `http://localhost:5001`.
-The React app runs on `http://localhost:5173`.
+App URLs:
 
-## GitHub OAuth Setup
-
-Create an OAuth app in GitHub Developer Settings:
-
-- Homepage URL: `http://localhost:5173`
-- Authorization callback URL: `http://localhost:5001/api/auth/github/callback`
-
-Put the client ID and secret in `server/.env`.
-
-## Branch and PR Practice
-
-Use this repo like a real team project:
-
-```bash
-git checkout -b codex/feature-auth
-git add .
-git commit -m "feat: add github oauth login"
-git push origin codex/feature-auth
+```txt
+Frontend: http://localhost:5173
+Backend:  http://localhost:5001
+Health:   http://localhost:5001/health
 ```
 
-Every PR should include:
+If GitHub OAuth is not configured yet, use the `Try demo dashboard` button on the landing page.
 
-- Summary
-- Screenshots for UI changes
-- Test plan
-- Any environment variables added
+## Available Scripts
 
-## Suggested Build Order
+Run both frontend and backend:
 
-1. Auth and protected routes
-2. Repository saving/bookmarking
-3. Issue tracking
-4. Pull request tracking
-5. Notes and contribution progress
-6. GitHub sync job
-7. Tests
-8. CI/CD and deployment
+```bash
+npm run dev
+```
+
+Run lint checks:
+
+```bash
+npm run lint
+```
+
+Run tests:
+
+```bash
+npm test
+```
+
+Build the frontend:
+
+```bash
+npm run build
+```
+
+Run only the backend:
+
+```bash
+npm start --workspace server
+```
+
+Run only the frontend:
+
+```bash
+npm run dev --workspace client
+```
+
+## API Overview
+
+```txt
+GET    /health
+GET    /api/auth/github
+GET    /api/auth/github/callback
+POST   /api/auth/refresh
+GET    /api/auth/me
+POST   /api/auth/logout
+
+GET    /api/dashboard
+
+GET    /api/repos
+POST   /api/repos
+
+GET    /api/issues
+GET    /api/issues/:id
+POST   /api/issues
+PATCH  /api/issues/:id
+
+GET    /api/pull-requests
+POST   /api/pull-requests
+
+POST   /api/notes
+DELETE /api/notes/:id
+```
+
+## Testing
+
+The backend uses Vitest, Supertest, and MongoDB Memory Server.
+
+The frontend uses Vitest, React Testing Library, and jsdom.
+
+Run the full test suite:
+
+```bash
+npm test
+```
+
+## CI/CD
+
+The CI workflow runs on pushes to `main` and `dev`, and on pull requests.
+
+It checks:
+
+- dependency installation
+- linting
+- backend tests
+- frontend tests
+- frontend production build
+
+Deployment workflow examples are included for:
+
+- Vercel frontend deployment
+- Render backend deploy hook
+
+## Deployment Notes
+
+Recommended deployment setup:
+
+- Frontend: Vercel
+- Backend: Render, Railway, or Fly.io
+- Database: MongoDB Atlas
+
+Required production environment variables:
+
+```bash
+CLIENT_URL=
+MONGO_URI=
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+```
+
+## Status
+
+This project currently includes the core full-stack scaffold and main contribution-tracking flows. Planned improvements include repository search, edit/delete actions, GitHub webhooks, richer loading states, and broader test coverage.
