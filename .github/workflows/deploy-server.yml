@@ -1,5 +1,11 @@
 name: Deploy Server
 
+# An example workflow, as the README says. Nothing is deployed yet and the
+# repository has no secrets set, so the curl ran as `curl -X POST ""` and failed
+# on every push with "URL rejected: Malformed input to a URL function". A red X
+# on every commit for a deploy nobody has configured. It skips now, and starts
+# working the moment RENDER_DEPLOY_HOOK_URL exists.
+
 on:
   workflow_dispatch:
   push:
@@ -14,5 +20,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # The secrets context is not available in a job-level `if`, so the check
+      # has to be a step.
+      - name: Check for a deploy hook
+        id: hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -n "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::RENDER_DEPLOY_HOOK_URL is not set, skipping the server deploy."
+          fi
+
       - name: Trigger Render deploy hook
-        run: curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+        if: steps.hook.outputs.configured == 'true'
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: curl -fsSL -X POST "$RENDER_DEPLOY_HOOK_URL"

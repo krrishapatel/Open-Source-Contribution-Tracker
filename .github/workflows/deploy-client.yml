@@ -1,5 +1,9 @@
 name: Deploy Client
 
+# An example workflow, as the README says. With no VERCEL_TOKEN set the last
+# step ran as `npx vercel deploy client/dist --prod --token=` and failed on every
+# push. It skips now, and starts working the moment the secret exists.
+
 on:
   workflow_dispatch:
   push:
@@ -14,22 +18,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # The secrets context is not available in a job-level `if`, so the check
+      # has to be a step.
+      - name: Check for a Vercel token
+        id: token
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -n "$VERCEL_TOKEN" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::VERCEL_TOKEN is not set, skipping the client deploy."
+          fi
+
       - name: Checkout
+        if: steps.token.outputs.configured == 'true'
         uses: actions/checkout@v4
 
       - name: Setup Node
+        if: steps.token.outputs.configured == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
       - name: Install dependencies
+        if: steps.token.outputs.configured == 'true'
         run: npm ci
 
       - name: Build client
+        if: steps.token.outputs.configured == 'true'
         run: npm run build --workspace client
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
+      # Pinned. An unpinned npx pulls whatever the latest CLI is at deploy time,
+      # which is not a thing to discover during a deploy.
       - name: Deploy with Vercel
-        run: npx vercel deploy client/dist --prod --token=${{ secrets.VERCEL_TOKEN }}
+        if: steps.token.outputs.configured == 'true'
+        run: npx vercel@59 deploy client/dist --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
